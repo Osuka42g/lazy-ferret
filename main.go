@@ -43,6 +43,13 @@ func handleFBPostRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ss.Kind == "text" {
+		if isCommand(ss.Payload) {
+			execCommand(ss)
+			return
+		}
+	}
+
 	sendFBPayload(ss.compose())
 }
 
@@ -50,4 +57,20 @@ func respondBadRequest(w http.ResponseWriter, m string) {
 	w.WriteHeader(http.StatusBadRequest)
 	res := standardResponse{m}
 	json.NewEncoder(w).Encode(res)
+}
+
+func isCommand(c string) bool {
+	switch c {
+	case "help", "ayuda":
+		return true
+	}
+	return false
+}
+
+func execCommand(ss fbMessage) {
+	switch ss.Payload {
+	case "help", "ayuda":
+		ss.Payload = "I'm a ferretbot!"
+	}
+	sendFBPayload(ss.compose())
 }
