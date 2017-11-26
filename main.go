@@ -118,9 +118,13 @@ func execCommand(ss fbMessage) {
 	case "help", "ayuda":
 		ss.Payload = "I'm a ferretbot!"
 		sendFBPayload(ss.compose())
-		ss.Payload = "You can find my sourcecode in https://github.com/osuka42/lazy-ferret"
+		ss.Payload = "I'm a demostration of chatbots with golang. Try sending me a picture! Remember that I'm looking for ferrets!"
+		sendFBPayload(ss.compose())
+		ss.Payload = "You can find my sourcecode in https://github.com/osuka42g/lazy-ferret"
+		sendFBPayload(ss.compose())
+	default:
+		sendFBPayload(ss.compose())
 	}
-	sendFBPayload(ss.compose())
 }
 
 func randomStandardResponse() string {
