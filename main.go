@@ -117,6 +117,8 @@ func execCommand(ss fbMessage) {
 	switch ss.Payload {
 	case "help", "ayuda":
 		ss.Payload = "I'm a ferretbot!"
+		sendFBPayload(ss.compose())
+		ss.Payload = "You can find my sourcecode in https://github.com/osuka42/lazy-ferret"
 	}
 	sendFBPayload(ss.compose())
 }
