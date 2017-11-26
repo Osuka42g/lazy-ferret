@@ -30,9 +30,11 @@ var (
 )
 
 func main() {
+	fmt.Println("Starting engine...")
 	http.HandleFunc("/messenger", routeMessage)
 	http.HandleFunc("/health", routeMessage)
 	http.ListenAndServe(":8080", nil)
+	fmt.Println("We are ready to go!")
 }
 
 func displayHealth(w http.ResponseWriter, r *http.Request) {
