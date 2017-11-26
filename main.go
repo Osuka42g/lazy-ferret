@@ -27,14 +27,14 @@ var (
 	facebookAccessToken       = os.Getenv("FB_ACCESS_TOKEN")
 	googleVerificationKey     = os.Getenv("GOOGLE_API_KEY")
 	facebookEndpoint          = "https://graph.facebook.com/v2.6/me/messages?access_token=" + facebookAccessToken
+	port                      = ":" + os.Getenv("PORT")
 )
 
 func main() {
 	fmt.Println("Starting engine...")
 	http.HandleFunc("/messenger", routeMessage)
 	http.HandleFunc("/health", routeMessage)
-	http.ListenAndServe(":8080", nil)
-	fmt.Println("We are ready to go!")
+	http.ListenAndServe(port, nil)
 }
 
 func displayHealth(w http.ResponseWriter, r *http.Request) {
