@@ -1,11 +1,24 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
+	"path"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
+	"google.golang.org/api/googleapi/transport"
+	vision "google.golang.org/api/vision/v1"
 )
 
 var (
@@ -48,6 +61,30 @@ func handleFBPostRequest(w http.ResponseWriter, r *http.Request) {
 			execCommand(ss)
 			return
 		}
+
+		ss.Payload = randomStandardResponse()
+	}
+
+	if ss.Kind == "image" {
+		ss.Kind = "text"
+		imagePath, err := saveImage(ss.Payload)
+		if err != nil {
+			fmt.Println(err)
+		}
+		res := sendToGV(imagePath)
+
+		vl := []visionLabels{}
+		_ = json.Unmarshal(res, &vl)
+
+		for _, value := range vl {
+			ss.Payload = "No ferret!"
+
+			if value.Description == "ferret" {
+				ss.Payload = "Ferret! I see a ferret!"
+				break
+			}
+		}
+
 	}
 
 	sendFBPayload(ss.compose())
@@ -73,4 +110,82 @@ func execCommand(ss fbMessage) {
 		ss.Payload = "I'm a ferretbot!"
 	}
 	sendFBPayload(ss.compose())
+}
+
+func randomStandardResponse() string {
+	responses := []string{
+		"Show me the ferrets!",
+		"I don't care! Show me the ferrets.",
+		"The ferrets!!",
+		"Zzz...",
+		"Too much talk and no ferrets!",
+	}
+	return responses[rand.Intn(5)]
+}
+
+func createDownloadsDir() {
+	dir := "downloads"
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.MkdirAll(dir, os.ModePerm)
+	}
+}
+
+func saveImage(URL string) (filepath string, err error) {
+	p, _ := url.ParseRequestURI(URL)
+	ext := path.Ext(strings.Split(p.RequestURI(), "?")[0]) // Get extension of the file, without downloading yet
+	now := int(time.Now().Unix())
+	filepath = "./downloads/" + strconv.Itoa(now) + ext
+
+	createDownloadsDir()
+	img, err := os.Create(filepath)
+	resp, err := http.Get(URL)
+	w, err := io.Copy(img, resp.Body)
+	if err != nil {
+		return
+	}
+
+	fmt.Println("Saved " + filepath + " " + strconv.Itoa(int(w)) + "bytes")
+	return
+}
+
+func sendToGV(f string) []byte {
+	data, err := ioutil.ReadFile(f)
+
+	enc := base64.StdEncoding.EncodeToString(data)
+	img := &vision.Image{Content: enc}
+
+	feature := &vision.Feature{
+		Type:       "LABEL_DETECTION",
+		MaxResults: 10,
+	}
+
+	req := &vision.AnnotateImageRequest{
+		Image:    img,
+		Features: []*vision.Feature{feature},
+	}
+
+	batch := &vision.BatchAnnotateImagesRequest{
+		Requests: []*vision.AnnotateImageRequest{req},
+	}
+
+	client := &http.Client{
+		Transport: &transport.APIKey{Key: "AIzaSyDZnbKlOILDA-JEUZ_oQPmF34xrheMCwxk"},
+	}
+	svc, err := vision.New(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := svc.Images.Annotate(batch).Do()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	body, err := json.Marshal(res.Responses[0].LabelAnnotations)
+	return body
+}
+
+type visionLabels struct {
+	Description string  `json:"description"`
+	Mid         string  `json:"mid"`
+	Score       float64 `json:"score"`
 }
