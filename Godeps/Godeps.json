@@ -1,0 +1,40 @@
+{
+	"ImportPath": "github.com/osuka42g/lazy-ferret",
+	"GoVersion": "go1.9",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/joho/godotenv",
+			"Comment": "v1.2.0",
+			"Rev": "a79fa1e548e2c689c241d10173efd51e5d689d5b"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "b129b8e0fbeb39c8358e51a07ab6c50ad415e72e"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context/ctxhttp",
+			"Rev": "b129b8e0fbeb39c8358e51a07ab6c50ad415e72e"
+		},
+		{
+			"ImportPath": "google.golang.org/api/gensupport",
+			"Rev": "406e6cffe51212e465c56554f243c115595e135a"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi",
+			"Rev": "406e6cffe51212e465c56554f243c115595e135a"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi/internal/uritemplates",
+			"Rev": "406e6cffe51212e465c56554f243c115595e135a"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi/transport",
+			"Rev": "406e6cffe51212e465c56554f243c115595e135a"
+		},
+		{
+			"ImportPath": "google.golang.org/api/vision/v1",
+			"Rev": "406e6cffe51212e465c56554f243c115595e135a"
+		}
+	]
+}
